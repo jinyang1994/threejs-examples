@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>动画渲染循环</title>
+  </head>
+  <body>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from 'three'
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+
+      // 创建3D场景对象Scene
+      const scene = new THREE.Scene()
+
+      // 设置材质
+      const material = new THREE.MeshLambertMaterial({ color: '0xD43001' })
+
+      // 设置几何体长宽高，也就是x、y、z三个方向的尺寸
+      //对比三个参数分别对应xyz轴哪个方向
+      const geometry = new THREE.BoxGeometry(100, 60, 20)
+      
+      const mesh = new THREE.Mesh(geometry, material) //网格模型对象Mesh
+
+      // AxesHelper：辅助观察的坐标系
+      const axesHelper = new THREE.AxesHelper(150)
+      scene.add(axesHelper)
+
+      // 设置模型mesh的xyz坐标
+      mesh.position.set(100, 100, 0)
+      scene.add(mesh)
+
+      // 定义相机输出画布的尺寸(单位:像素px)
+      const width = 800 //宽度
+      const height = 500 //高度
+
+      // 实例化一个透视投影相机对象
+      // 30:视场角度, width / height:Canvas画布宽高比, 1:近裁截面, 3000：远裁截面
+      const camera = new THREE.PerspectiveCamera(80, width / height, 1, 3000)
+      camera.position.set(200, 200, 200)
+      camera.lookAt(0, 0, 0)
+
+      //环境光:没有特定方向，整体改变场景的光照明暗
+      const ambient = new THREE.AmbientLight(0xffffff, 0.4)
+      scene.add(ambient)
+
+      // 创建渲染器对象
+      const renderer = new THREE.WebGLRenderer()
+      renderer.setSize(width, height) //设置three.js渲染区域的尺寸(像素px)
+      renderer.render(scene, camera)
+      document.body.appendChild(renderer.domElement)
+
+      // 设置了渲染循环,相机控件OrbitControls就不用再通过事件change执行renderer.render(scene, camera);
+      // 毕竟渲染循环一直在执行renderer.render(scene, camera);
+      new OrbitControls(camera, renderer.domElement)
+
+      // 渲染循环
+      const clock = new THREE.Clock()
+      function render() {
+        const spt = clock.getDelta() * 1000//毫秒
+        console.log('两帧渲染时间间隔(毫秒)', spt)
+        console.log('帧率FPS',1000 / spt)
+        renderer.render(scene, camera) //执行渲染操作
+        mesh.rotateY(0.01) //每次绕y轴旋转0.01弧度
+        requestAnimationFrame(render) //请求再次执行渲染函数render，渲染下一帧
+      }
+      render();
+    </script>
+  </body>
+</html>

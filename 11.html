@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>阵列立方体和相机适配体验</title>
+  </head>
+  <body>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from 'three'
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+      //引入性能监视器stats.js
+      import Stats from 'three/addons/libs/stats.module.js'
+
+      //创建stats对象
+      const stats = new Stats()
+      //stats.domElement:web页面上输出计算结果,一个div元素
+      document.body.appendChild(stats.domElement)
+
+      // 创建3D场景对象Scene
+      const scene = new THREE.Scene()
+
+      //材质对象Material
+      const material = new THREE.MeshLambertMaterial({
+          side: THREE.DoubleSide, //默认只有正面可见
+          color: 0x00ffff, //设置材质颜色
+          transparent: true,//开启透明
+          opacity: 0.5 //设置透明度
+      })
+ 
+      // BoxGeometry：长方体
+      {
+        const geometry = new THREE.BoxGeometry(100, 100, 100)
+        const mesh = new THREE.Mesh(geometry, material) //网格模型对象Mesh
+
+        mesh.position.set(100, 100, 100)
+        scene.add(mesh) //网格模型添加到场景中  
+      }
+      // SphereGeometry：球体
+      {
+        const geometry = new THREE.SphereGeometry(50)
+        const mesh = new THREE.Mesh(geometry, material) //网格模型对象Mesh
+
+        mesh.position.set(0, 0, 0)
+        scene.add(mesh) //网格模型添加到场景中  
+      }
+      // CylinderGeometry：圆柱
+      {
+        const geometry = new THREE.CylinderGeometry(50, 50, 100)
+        const mesh = new THREE.Mesh(geometry, material) //网格模型对象Mesh
+
+        mesh.position.set(200, 200, 200)
+        scene.add(mesh) //网格模型添加到场景中  
+      }
+      // PlaneGeometry：矩形平面
+      {
+        const geometry = new THREE.PlaneGeometry(100, 50)
+        const mesh = new THREE.Mesh(geometry, material) //网格模型对象Mesh
+
+        mesh.position.set(-100, -100, -100)
+        scene.add(mesh) //网格模型添加到场景中  
+      }
+      // CircleGeometry：圆形平面
+      {
+        const geometry = new THREE.CircleGeometry(50)
+        const mesh = new THREE.Mesh(geometry, material) //网格模型对象Mesh
+
+        mesh.position.set(-200, -200, -200)
+        scene.add(mesh) //网格模型添加到场景中  
+      }
+
+      // 定义相机输出画布的尺寸(单位:像素px)
+      const width = 800 //宽度
+      const height = 500 //高度
+
+      // 实例化一个透视投影相机对象
+      // 30:视场角度, width / height:Canvas画布宽高比, 1:近裁截面, 3000：远裁截面
+      const camera = new THREE.PerspectiveCamera(80, width / height, 1, 8000)
+      camera.position.set(2800, 2800, 2800)
+      camera.lookAt(0, 0, 0)
+
+      //环境光:没有特定方向，整体改变场景的光照明暗
+      const ambient = new THREE.AmbientLight(0xffffff, 0.4)
+      scene.add(ambient)
+
+      // 创建渲染器对象
+      const renderer = new THREE.WebGLRenderer()
+      renderer.setSize(width, height) //设置three.js渲染区域的尺寸(像素px)
+      renderer.render(scene, camera)
+      document.body.appendChild(renderer.domElement)
+
+      // 设置了渲染循环,相机控件OrbitControls就不用再通过事件change执行renderer.render(scene, camera);
+      // 毕竟渲染循环一直在执行renderer.render(scene, camera);
+      const controls = new OrbitControls(camera, renderer.domElement)
+      // 如果OrbitControls改变了相机参数，重新调用渲染器渲染三维场景
+      controls.addEventListener('change', function () {
+        stats.update();
+        
+        renderer.render(scene, camera) //执行渲染操作
+      })
+    </script>
+  </body>
+</html>

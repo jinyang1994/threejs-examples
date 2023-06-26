@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>GUI</title>
+  </head>
+  <body>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from 'three'
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+      //引入性能监视器stats.js
+      import Stats from 'three/addons/libs/stats.module.js'
+      // 引入dat.gui.js的一个类GUI
+      import { GUI } from 'three/addons/libs/lil-gui.module.min.js'
+
+      //创建stats对象
+      const stats = new Stats()
+      //stats.domElement:web页面上输出计算结果,一个div元素
+      document.body.appendChild(stats.domElement)
+
+      // 实例化一个gui对象
+      const gui = new GUI()
+
+      // 创建3D场景对象Scene
+      const scene = new THREE.Scene()
+
+      // AxesHelper：辅助观察的坐标系
+      const axesHelper = new THREE.AxesHelper(150)
+      scene.add(axesHelper)
+
+      //材质对象Material
+      const material = new THREE.MeshLambertMaterial({
+          side: THREE.DoubleSide, //默认只有正面可见
+          color: 0x00ffff, //设置材质颜色
+          transparent: true,//开启透明
+          opacity: 0.5 //设置透明度
+      })
+
+      const geometry = new THREE.BoxGeometry(100, 100, 100)
+      const mesh = new THREE.Mesh(geometry, material) //网格模型对象Mesh
+
+      mesh.position.set(100, 100, 100)
+      scene.add(mesh) //网格模型添加到场景中  
+
+      const obj = { color: mesh.material.color }
+      // .addColor()生成颜色值改变的交互界面
+      gui.addColor(obj, 'color').onChange(function(value){
+        mesh.material.color.set(value)
+      })
+
+      // gui增加交互界面，用来改变obj对应属性
+      gui.add(mesh.position, 'x', 0, 180)
+      gui.add(mesh.position, 'y', 0, 180)
+      gui.add(mesh.position, 'z', 0, 180)
+
+      // 定义相机输出画布的尺寸(单位:像素px)
+      const width = 800 //宽度
+      const height = 500 //高度
+
+      // 实例化一个透视投影相机对象
+      // 30:视场角度, width / height:Canvas画布宽高比, 1:近裁截面, 3000：远裁截面
+      const camera = new THREE.PerspectiveCamera(80, width / height, 1, 8000)
+      camera.position.set(2800, 2800, 2800)
+      camera.lookAt(0, 0, 0)
+
+      //环境光:没有特定方向，整体改变场景的光照明暗
+      const ambient = new THREE.AmbientLight(0xffffff, 0.4)
+      scene.add(ambient)
+      gui.add(ambient, 'intensity', 0, 2.0).name('环境光强度')
+
+      // 创建渲染器对象
+      const renderer = new THREE.WebGLRenderer()
+      renderer.setSize(width, height) //设置three.js渲染区域的尺寸(像素px)
+      renderer.render(scene, camera)
+      document.body.appendChild(renderer.domElement)
+
+      // 设置了渲染循环,相机控件OrbitControls就不用再通过事件change执行renderer.render(scene, camera);
+      // 毕竟渲染循环一直在执行renderer.render(scene, camera);
+      const controls = new OrbitControls(camera, renderer.domElement)
+      // 如果OrbitControls改变了相机参数，重新调用渲染器渲染三维场景
+      controls.addEventListener('change', function () {
+        stats.update();
+        
+        renderer.render(scene, camera) //执行渲染操作
+      })
+    </script>
+  </body>
+</html>
