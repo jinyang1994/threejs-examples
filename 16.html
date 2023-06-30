@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>顶点法线数据</title>
+  </head>
+  <body>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from 'three'
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+
+      // 创建3D场景对象Scene
+      const scene = new THREE.Scene()
+
+      // 设置材质
+      const material = new THREE.MeshLambertMaterial({ color: 0x0000ff, side: THREE.DoubleSide, wireframe:true })
+
+      // 矩形平面，有索引，两个三角形，有2个顶点重合，有4个顶点
+      // 每个顶点的法线数据和顶点位置数据一一对应
+      const normals = new Float32Array([
+        0, 0, 1, //顶点1法线( 法向量 )
+        0, 0, 1, //顶点2法线
+        0, 0, 1, //顶点3法线
+        0, 0, 1, //顶点4法线
+      ])
+
+      const vertices = new Float32Array([
+        0, 0, 0, // 顶点1坐标
+        80, 0, 0, // 顶点2坐标
+        80, 80, 0, // 顶点3坐标
+        0, 80, 0, // 顶点4坐标
+      ])
+      
+      const indexes = new Uint16Array([
+        // 下面索引值对应顶点位置数据中的顶点坐标
+        0, 1, 2, 0, 2, 3
+      ])
+
+      // 创建一个空的几何体对象
+      const geometry = new THREE.BufferGeometry()
+
+      // 设置几何体attributes属性的位置属性
+      geometry.attributes.position = new THREE.BufferAttribute(vertices, 3)
+      // // 设置几何体的顶点法线属性.attributes.normal
+      geometry.attributes.normal = new THREE.BufferAttribute(normals, 3)
+      // Uint16Array类型数组创建顶点索引数据
+      geometry.index = new THREE.BufferAttribute(indexes, 1)
+      
+      const mesh = new THREE.Mesh(geometry, material) //网格模型对象Mesh
+
+      // AxesHelper：辅助观察的坐标系
+      const axesHelper = new THREE.AxesHelper(150)
+      scene.add(axesHelper)
+
+      // 设置模型mesh的xyz坐标
+      mesh.position.set(0, 0, 0)
+      scene.add(mesh)
+
+      // 定义相机输出画布的尺寸(单位:像素px)
+      const width = 800 //宽度
+      const height = 500 //高度
+
+      // 实例化一个透视投影相机对象
+      // 30:视场角度, width / height:Canvas画布宽高比, 1:近裁截面, 3000：远裁截面
+      const camera = new THREE.PerspectiveCamera(80, width / height, 1, 3000)
+      camera.position.set(200, 200, 200)
+      camera.lookAt(0, 0, 0)
+
+      //环境光:没有特定方向，整体改变场景的光照明暗
+      const ambient = new THREE.AmbientLight(0xffffff, 1)
+      scene.add(ambient)
+
+      // 创建渲染器对象
+      const renderer = new THREE.WebGLRenderer()
+      renderer.setSize(width, height) //设置three.js渲染区域的尺寸(像素px)
+      renderer.render(scene, camera)
+      document.body.appendChild(renderer.domElement)
+
+      const controls = new OrbitControls(camera, renderer.domElement)
+      // 如果OrbitControls改变了相机参数，重新调用渲染器渲染三维场景
+      controls.addEventListener('change', function () {
+        renderer.render(scene, camera); //执行渲染操作
+      })
+    </script>
+  </body>
+</html>

@@ -32,6 +32,7 @@
           side: THREE.DoubleSide, //默认只有正面可见
           color: 0x00ffff, //设置材质颜色
           transparent: true,//开启透明,
+          wireframe: true,
           opacity: 0.5 //设置透明度
       })
  
@@ -40,14 +41,18 @@
         const geometry = new THREE.BoxGeometry(100, 100, 100)
         const mesh = new THREE.Mesh(geometry, material) //网格模型对象Mesh
 
+        console.log('长方体顶点位置数据',geometry.attributes.position)
+        console.log('长方体顶点索引数据',geometry.index)
         mesh.position.set(100, 100, 100)
-        scene.add(mesh) //网格模型添加到场景中  
+        scene.add(mesh) //网格模型添加到场景中
       }
       // SphereGeometry：球体
       {
         const geometry = new THREE.SphereGeometry(50)
         const mesh = new THREE.Mesh(geometry, material) //网格模型对象Mesh
 
+        console.log('球体顶点位置数据',geometry.attributes.position)
+        console.log('球体顶点索引数据',geometry.index)
         mesh.position.set(0, 0, 0)
         scene.add(mesh) //网格模型添加到场景中  
       }
@@ -56,6 +61,8 @@
         const geometry = new THREE.CylinderGeometry(50, 50, 100)
         const mesh = new THREE.Mesh(geometry, material) //网格模型对象Mesh
 
+        console.log('圆柱顶点位置数据',geometry.attributes.position)
+        console.log('圆柱顶点索引数据',geometry.index)
         mesh.position.set(200, 200, 200)
         scene.add(mesh) //网格模型添加到场景中  
       }
@@ -64,6 +71,8 @@
         const geometry = new THREE.PlaneGeometry(100, 50)
         const mesh = new THREE.Mesh(geometry, material) //网格模型对象Mesh
 
+        console.log('矩形平面顶点位置数据',geometry.attributes.position)
+        console.log('矩形平面顶点索引数据',geometry.index)
         mesh.position.set(-100, -100, -100)
         scene.add(mesh) //网格模型添加到场景中  
       }
@@ -72,6 +81,8 @@
         const geometry = new THREE.CircleGeometry(50)
         const mesh = new THREE.Mesh(geometry, material) //网格模型对象Mesh
 
+        console.log('圆形平面顶点位置数据',geometry.attributes.position)
+        console.log('圆形平面顶点索引数据',geometry.index)
         mesh.position.set(-200, -200, -200)
         scene.add(mesh) //网格模型添加到场景中  
       }

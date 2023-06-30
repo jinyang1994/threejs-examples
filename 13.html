@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>月球</title>
+  </head>
+  <body>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from 'three'
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+      // 引入gltf模型加载库GLTFLoader.js
+      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+      // 引入dat.gui.js的一个类GUI
+      import { GUI } from 'three/addons/libs/lil-gui.module.min.js'
+
+      // 创建GLTF加载器对象
+      const loader = new GLTFLoader()
+
+      // 创建3D场景对象Scene
+      const scene = new THREE.Scene()
+
+
+      // 实例化一个gui对象
+      const gui = new GUI()
+
+      // 定义相机输出画布的尺寸(单位:像素px)
+      const width = 800 //宽度
+      const height = 500 //高度
+
+      // 实例化一个透视投影相机对象
+      // 30:视场角度, width / height:Canvas画布宽高比, 1:近裁截面, 3000：远裁截面
+      const camera = new THREE.PerspectiveCamera(80, width / height, 1, 8000)
+      camera.position.set(2800, 2800, 2800)
+      camera.lookAt(0, 0, 0)
+
+      // 创建渲染器对象
+      const renderer = new THREE.WebGLRenderer()
+      renderer.setSize(width, height) //设置three.js渲染区域的尺寸(像素px)
+      renderer.render(scene, camera)
+      document.body.appendChild(renderer.domElement)
+
+      // 平行光
+      const directionalLight = new THREE.DirectionalLight('#4d4d4d', 1)
+      // 设置光源的方向：通过光源position属性和目标指向对象的position属性计算
+      directionalLight.position.set(100, 60, 50);
+
+      // 设置了渲染循环,相机控件OrbitControls就不用再通过事件change执行renderer.render(scene, camera);
+      // 毕竟渲染循环一直在执行renderer.render(scene, camera);
+      const controls = new OrbitControls(camera, renderer.domElement)
+      // 如果OrbitControls改变了相机参数，重新调用渲染器渲染三维场景
+
+      loader.load('./assets/moon.glb', function (gltf) { 
+        const moon = gltf.scene
+
+        scene.add(moon)
+
+        // 方向光指向对象网格模型moon，可以不设置，默认的位置是0,0,0
+        directionalLight.target = moon
+        scene.add(directionalLight)
+
+        const obj = { color: directionalLight.color }
+        // .addColor()生成颜色值改变的交互界面
+        gui.addColor(obj, 'color').onChange(function(value){
+          directionalLight.color.set(value)
+        })
+
+        // 渲染循环
+        function render() {
+          renderer.render(scene, camera) //执行渲染操作
+          moon.rotateY(0.002) //每次绕y轴旋转0.002弧度
+          requestAnimationFrame(render) //请求再次执行渲染函数render，渲染下一帧
+        }
+        render()
+      })
+    </script>
+  </body>
+</html>
